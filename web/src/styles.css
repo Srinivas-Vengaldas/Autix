@@ -1,4 +1,4 @@
-/* Light: Slate & Teal. Dark (follows the system setting): Graphite. */
+/* Slate & Teal, light only. */
 :root {
   --bg: #f6f7f9;
   --panel: #ffffff;
@@ -15,26 +15,8 @@
   --danger: #b42318;
   --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-  color-scheme: light dark;
+  color-scheme: light;
 }
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #0e1116;
-    --panel: #161b22;
-    --text: #e6edf3;
-    --muted: #9aa6b2;
-    --border: #2a313c;
-    --placeholder: #21262d;
-    --accent: #58a6ff;
-    --accent-hover: #79b8ff;
-    --on-accent: #0e1116;
-    --accent-soft: #132338;
-    --notice-bg: #221b12;
-    --notice-strong: #f0a44b;
-    --danger: #ff8a80;
-  }
-}
-
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; scroll-padding-top: 16px; }
 body {
