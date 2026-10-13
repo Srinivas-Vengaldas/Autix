@@ -1,0 +1,19 @@
+# Datasets and large local files (the notebook downloads the data from Kaggle)
+**/dataset/
+autix_outputs/
+autix_export.zip
+*.keras
+*.h5
+
+# Website build output
+web/node_modules/
+web/dist/
+web/public/mediapipe/wasm/
+
+# OS and editor files
+.DS_Store
+.vscode/
+.ipynb_checkpoints/
+
+AutismDataset.zip
+.calib.zip

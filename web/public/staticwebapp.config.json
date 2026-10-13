@@ -1,0 +1,27 @@
+{
+  "navigationFallback": {
+    "rewrite": "/index.html",
+    "exclude": ["/models/*", "/mediapipe/*", "/assets/*", "/*.{png,jpg,svg,ico,json,bin,wasm,tflite,js,css}"]
+  },
+  "routes": [
+    {
+      "route": "/models/*",
+      "headers": { "cache-control": "public, max-age=604800" }
+    },
+    {
+      "route": "/mediapipe/*",
+      "headers": { "cache-control": "public, max-age=604800" }
+    }
+  ],
+  "mimeTypes": {
+    ".bin": "application/octet-stream",
+    ".tflite": "application/octet-stream",
+    ".wasm": "application/wasm",
+    ".json": "application/json"
+  },
+  "globalHeaders": {
+    "X-Content-Type-Options": "nosniff",
+    "Referrer-Policy": "no-referrer",
+    "Permissions-Policy": "camera=(), microphone=(), geolocation=()"
+  }
+}

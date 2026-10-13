@@ -1,0 +1,39 @@
+name: Deploy website
+
+on:
+  push:
+    branches: [main]
+    paths: ["web/**", ".github/workflows/deploy.yml"]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Build
+        working-directory: web
+        run: |
+          npm ci
+          npm run build
+
+      - name: Check the trained models are included
+        run: test -f web/dist/models/xception/model.json && test -f web/dist/models/vgg19/model.json
+
+      # Only pushes to main deploy, so no preview copies use up the Free plan's storage.
+      - name: Deploy to Azure Static Web Apps
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          action: upload
+          app_location: web/dist
+          api_location: ""
+          output_location: ""
+          skip_app_build: true
