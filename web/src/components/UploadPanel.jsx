@@ -1,5 +1,14 @@
 import { useRef, useState } from "react";
 
+function PersonIcon() {
+  return (
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+      <circle cx="12" cy="8" r="4" />
+      <path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" />
+    </svg>
+  );
+}
+
 export default function UploadPanel({ image, onImage, consent, onConsent, canAnalyze, onAnalyze, busy, faceCanvas }) {
   const inputRef = useRef(null);
   const [dragging, setDragging] = useState(false);
@@ -9,8 +18,7 @@ export default function UploadPanel({ image, onImage, consent, onConsent, canAna
   };
 
   return (
-    <section className="panel upload" aria-label="Choose a photo">
-      <h2>1. Choose a face photo</h2>
+    <div className="panel upload">
       <div
         className={`dropzone${dragging ? " dragging" : ""}${image ? " has-image" : ""}`}
         onClick={() => inputRef.current?.click()}
@@ -27,13 +35,15 @@ export default function UploadPanel({ image, onImage, consent, onConsent, canAna
         }}
         role="button"
         tabIndex={0}
+        aria-label={image ? "Choose a different photo" : "Choose a face photo"}
       >
         {image ? (
           <img src={image.url} alt="Your selected photo" />
         ) : (
           <div className="dropzone-text">
-            <strong>Drop an image here</strong>
-            <span>or click to browse (JPG or PNG)</span>
+            <PersonIcon />
+            <strong>Drop a face photo here</strong>
+            <span>or click to browse · JPG, PNG or WebP</span>
           </div>
         )}
       </div>
@@ -48,20 +58,8 @@ export default function UploadPanel({ image, onImage, consent, onConsent, canAna
         }}
       />
 
-      <label className="consent">
-        <input type="checkbox" checked={consent} onChange={(e) => onConsent(e.target.checked)} />
-        <span>
-          I understand this is an educational machine-learning demo, not a medical or diagnostic tool, and I have
-          the right to use this photo.
-        </span>
-      </label>
-
-      <button className="primary" disabled={!canAnalyze} onClick={onAnalyze}>
-        {busy ? "Analyzing…" : "2. Analyze with both models"}
-      </button>
-
-      {faceCanvas && (
-        <figure className="crop">
+      <div className="crop">
+        {faceCanvas ? (
           <canvas
             ref={(el) => {
               if (el) {
@@ -71,9 +69,20 @@ export default function UploadPanel({ image, onImage, consent, onConsent, canAna
               }
             }}
           />
-          <figcaption>What the models saw: the head framed like the training photos, scaled to 224 × 224.</figcaption>
-        </figure>
-      )}
-    </section>
+        ) : (
+          <div className="crop-empty" aria-hidden="true" />
+        )}
+        <p>Model input: head framed like the training photos, 224 × 224 px</p>
+      </div>
+
+      <label className="consent">
+        <input type="checkbox" checked={consent} onChange={(e) => onConsent(e.target.checked)} />
+        <span>I understand this is an educational demo, not a diagnostic tool, and I have the right to use this photo.</span>
+      </label>
+
+      <button className="primary" disabled={!canAnalyze} onClick={onAnalyze}>
+        {busy ? "Analyzing…" : "Analyze with both models"}
+      </button>
+    </div>
   );
 }

@@ -2,6 +2,24 @@ import { useEffect, useRef } from "react";
 import { THRESHOLD } from "../config.js";
 import { drawHeatmap } from "../lib/heatmap.js";
 
+function Scale({ value, loading = false }) {
+  return (
+    <div className="scale">
+      <div className="bar" aria-hidden="true">
+        <div className={`bar-fill${loading ? " loading" : ""}`} style={{ width: `${value * 100}%` }} />
+        {!loading && <div className="bar-threshold" style={{ left: `${THRESHOLD * 100}%` }} />}
+      </div>
+      {!loading && (
+        <div className="scale-ticks" aria-hidden="true">
+          <span>0.0</span>
+          <span>threshold {THRESHOLD.toFixed(1)}</span>
+          <span>1.0</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function ResultCard({ name, status, progress, result, faceCanvas }) {
   const heatRef = useRef(null);
 
@@ -11,10 +29,17 @@ export default function ResultCard({ name, status, progress, result, faceCanvas 
     }
   }, [result, faceCanvas]);
 
+  const head = (extra) => (
+    <div className="card-head">
+      <h3>{name}</h3>
+      {extra}
+    </div>
+  );
+
   if (status === "error") {
     return (
       <article className="panel card">
-        <h3>{name}</h3>
+        {head()}
         <p className="error">This model could not be loaded. See the setup notes in the project README.</p>
       </article>
     );
@@ -23,11 +48,9 @@ export default function ResultCard({ name, status, progress, result, faceCanvas 
   if (status !== "ready") {
     return (
       <article className="panel card">
-        <h3>{name}</h3>
-        <p className="muted">Downloading model… {Math.round(progress * 100)}%</p>
-        <div className="bar">
-          <div className="bar-fill loading" style={{ width: `${progress * 100}%` }} />
-        </div>
+        {head(<span className="mono muted small">{Math.round(progress * 100)}%</span>)}
+        <p className="muted small">Downloading model weights…</p>
+        <Scale value={progress} loading />
       </article>
     );
   }
@@ -35,8 +58,9 @@ export default function ResultCard({ name, status, progress, result, faceCanvas 
   if (!result) {
     return (
       <article className="panel card">
-        <h3>{name}</h3>
-        <p className="muted">Ready. Results appear here after you analyze a photo.</p>
+        {head(<span className="pill">ready</span>)}
+        <div className="score placeholder">–.––</div>
+        <p className="muted small">The score and heatmap appear here after you analyze a photo.</p>
       </article>
     );
   }
@@ -44,24 +68,22 @@ export default function ResultCard({ name, status, progress, result, faceCanvas 
   const autistic = result.score >= THRESHOLD;
   return (
     <article className="panel card">
-      <div className="card-head">
-        <h3>{name}</h3>
-        <span className="timing">{result.ms} ms</span>
+      {head(<span className="mono muted small">{result.ms} ms</span>)}
+      <div className="score-row">
+        <span className="score" aria-label={`Model score ${result.score.toFixed(2)}`}>
+          {result.score.toFixed(2)}
+        </span>
+        <span className="score-label">
+          score → <strong>{autistic ? "Autistic" : "Non-autistic"}</strong>
+        </span>
       </div>
-      <p className="label">
-        Classified as <strong className={autistic ? "tag tag-a" : "tag tag-n"}>{autistic ? "Autistic" : "Non-autistic"}</strong>
-      </p>
-      <div className="bar" aria-label={`Model score ${result.score.toFixed(2)}`}>
-        <div className="bar-fill" style={{ width: `${result.score * 100}%` }} />
-        <div className="bar-threshold" style={{ left: `${THRESHOLD * 100}%` }} />
-      </div>
-      <p className="muted small">
-        Model score {result.score.toFixed(2)} for the Autistic class (threshold {THRESHOLD.toFixed(2)}). A score is
-        the model's output, not a probability that a person is autistic.
-      </p>
+      <Scale value={result.score} />
       <figure className="heat">
         <canvas ref={heatRef} />
-        <figcaption>Class activation map: warmer areas pushed {name} towards this answer.</figcaption>
+        <figcaption>
+          Warmer areas pushed {name} towards this answer. A score is the model's output, not a probability that a
+          person is autistic.
+        </figcaption>
       </figure>
     </article>
   );

@@ -1,24 +1,61 @@
-import { useEffect, useState } from "react";
 import { SITE, MODELS } from "../config.js";
+import { useMetrics } from "../lib/useMetrics.js";
 
 const pct = (v) => (v == null ? "–" : `${(v * 100).toFixed(1)}%`);
 
 export default function About() {
-  const [metrics, setMetrics] = useState(null);
-
-  useEffect(() => {
-    fetch(`${import.meta.env.BASE_URL}models/metrics.json`)
-      .then((r) => (r.ok ? r.json() : null))
-      .then(setMetrics)
-      .catch(() => setMetrics(null));
-  }, []);
+  const metrics = useMetrics();
 
   return (
-    <section className="about" id="about">
-      <h2>About this project</h2>
-      <div className="about-grid">
-        <div>
-          <h3>How it works</h3>
+    <div className="about">
+      <section id="test-results" aria-labelledby="test-results-title">
+        <h2 className="eyebrow" id="test-results-title">03 · Test-set results</h2>
+        <div className="panel">
+          {metrics ? (
+            <>
+              <div className="table-scroll">
+                <table>
+                  <thead>
+                    <tr>
+                      <th scope="col">Model</th>
+                      <th scope="col">Accuracy</th>
+                      <th scope="col">Precision</th>
+                      <th scope="col">Recall</th>
+                      <th scope="col">F1</th>
+                      <th scope="col">AUC</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {MODELS.map(({ id, name }) => {
+                      const m = metrics.models?.[id];
+                      return (
+                        <tr key={id}>
+                          <th scope="row">{name}</th>
+                          <td>{pct(m?.accuracy)}</td>
+                          <td>{pct(m?.precision)}</td>
+                          <td>{pct(m?.recall)}</td>
+                          <td>{pct(m?.f1)}</td>
+                          <td>{m?.auc?.toFixed(3) ?? "–"}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+              <p className="muted small">
+                {metrics.test_set ?? "Held-out test set"}, threshold {metrics.threshold ?? 0.5}. Trained{" "}
+                {metrics.trained_on ?? ""} with TensorFlow {metrics.tensorflow ?? ""}.
+              </p>
+            </>
+          ) : (
+            <p className="muted">Loading results…</p>
+          )}
+        </div>
+      </section>
+
+      <section id="method" aria-labelledby="method-title">
+        <h2 className="eyebrow" id="method-title">04 · Method</h2>
+        <div className="panel prose">
           <ol>
             <li>MediaPipe finds the face in your photo and frames it the way the training photos were framed.</li>
             <li>
@@ -30,56 +67,13 @@ export default function About() {
               drove the score.
             </li>
           </ol>
-          <p className="privacy">
-            Your photo never leaves this device. Everything runs in your browser; nothing is uploaded or stored.
-          </p>
+          <p className="privacy">Your photo never leaves this device. Nothing is uploaded or stored.</p>
         </div>
+      </section>
 
-        <div>
-          <h3>Test-set results</h3>
-          {metrics ? (
-            <>
-              <div className="table-scroll">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Model</th>
-                    <th>Accuracy</th>
-                    <th>Precision</th>
-                    <th>Recall</th>
-                    <th>F1</th>
-                    <th>AUC</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {MODELS.map(({ id, name }) => {
-                    const m = metrics.models?.[id];
-                    return (
-                      <tr key={id}>
-                        <td>{name}</td>
-                        <td>{pct(m?.accuracy)}</td>
-                        <td>{pct(m?.precision)}</td>
-                        <td>{pct(m?.recall)}</td>
-                        <td>{pct(m?.f1)}</td>
-                        <td>{m?.auc?.toFixed(3) ?? "–"}</td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-              </div>
-              <p className="muted small">
-                {metrics.test_set ?? "Held-out test set"}, threshold {metrics.threshold ?? 0.5}. Trained{" "}
-                {metrics.trained_on ?? ""} with TensorFlow {metrics.tensorflow ?? ""}.
-              </p>
-            </>
-          ) : (
-            <p className="muted">Results will appear here once the trained models are added.</p>
-          )}
-        </div>
-
-        <div>
-          <h3>Limitations</h3>
+      <section id="limitations" aria-labelledby="limitations-title">
+        <h2 className="eyebrow" id="limitations-title">05 · Limitations</h2>
+        <div className="panel prose">
           <ul>
             <li>
               The <a href={SITE.datasetUrl}>dataset</a> was collected from the web. Its labels are not clinically
@@ -95,7 +89,7 @@ export default function About() {
             </li>
           </ul>
         </div>
-      </div>
-    </section>
+      </section>
+    </div>
   );
 }

@@ -4,9 +4,20 @@ import { initBackend, loadModel, predict } from "./lib/models.js";
 import { cropToCanvas, findFace, loadFaceDetector } from "./lib/face.js";
 import UploadPanel from "./components/UploadPanel.jsx";
 import ResultCard from "./components/ResultCard.jsx";
+import MetricsStrip from "./components/MetricsStrip.jsx";
 import About from "./components/About.jsx";
 
 const initialModelState = Object.fromEntries(MODELS.map((m) => [m.id, { status: "loading", progress: 0 }]));
+
+function Logo() {
+  return (
+    <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true" className="logo">
+      <rect x="1" y="1" width="26" height="26" rx="6" fill="none" stroke="currentColor" strokeWidth="2" />
+      <circle cx="10" cy="14" r="3.5" fill="currentColor" />
+      <circle cx="18" cy="14" r="3.5" fill="none" stroke="currentColor" strokeWidth="2" />
+    </svg>
+  );
+}
 
 export default function App() {
   const loaded = useRef({});
@@ -48,6 +59,7 @@ export default function App() {
   }, []);
 
   const readyModels = MODELS.filter((m) => modelState[m.id].status === "ready");
+  const allReady = readyModels.length === MODELS.length;
   const busy = phase === "running";
   const canAnalyze = Boolean(image && consent && readyModels.length && faceReady && !busy);
 
@@ -91,18 +103,26 @@ export default function App() {
 
   const labels = Object.values(results).map((r) => r.score >= THRESHOLD);
   const agreement =
-    labels.length === 2 ? (labels[0] === labels[1] ? "Both models agree." : "The two models disagree on this photo.") : null;
+    labels.length === 2
+      ? labels[0] === labels[1]
+        ? "Both models agree on this photo."
+        : "The two models disagree on this photo."
+      : null;
 
   return (
     <>
       <header className="site-header">
         <div className="wrap header-row">
-          <div>
-            <div className="brand">{SITE.title}</div>
-            <p className="tagline">Compare two transfer-learning models on a face photo, entirely in your browser.</p>
-          </div>
-          <nav>
-            <a href="#about">About</a>
+          <a className="brand" href="#top">
+            <Logo />
+            <span className="brand-name">{SITE.title}</span>
+            <span className="brand-sub">Transfer-learning comparison</span>
+          </a>
+          <nav aria-label="Main">
+            <a href="#demo">Demo</a>
+            <a href="#method">Method</a>
+            <a href="#test-results">Results</a>
+            <a href="#limitations">Limitations</a>
             <a href={SITE.githubUrl}>GitHub</a>
           </nav>
         </div>
@@ -110,26 +130,34 @@ export default function App() {
 
       <div className="notice" role="note">
         <div className="wrap">
-          <strong>Educational demo, not a diagnostic tool.</strong> Autism cannot be identified from a photo. These
-          models show what a CNN learns from a public dataset and where that goes wrong.
+          <strong>Educational demo, not a diagnostic tool.</strong> Autism cannot be identified from a photo. Images
+          are processed in your browser and never uploaded.
         </div>
       </div>
 
-      <main className="wrap">
-        <div className="layout">
-          <UploadPanel
-            image={image}
-            onImage={chooseImage}
-            consent={consent}
-            onConsent={setConsent}
-            canAnalyze={canAnalyze}
-            onAnalyze={() => run(false)}
-            busy={busy}
-            faceCanvas={faceCanvas}
-          />
+      <main className="wrap" id="top">
+        <div className="layout" id="demo">
+          <section className="step" aria-labelledby="input-title">
+            <h2 className="eyebrow" id="input-title">01 · Input</h2>
+            <UploadPanel
+              image={image}
+              onImage={chooseImage}
+              consent={consent}
+              onConsent={setConsent}
+              canAnalyze={canAnalyze}
+              onAnalyze={() => run(false)}
+              busy={busy}
+              faceCanvas={faceCanvas}
+            />
+          </section>
 
-          <section className="results" aria-live="polite" aria-label="Results">
-            <h2>Results</h2>
+          <section className="step" aria-labelledby="results-title">
+            <div className="step-head">
+              <h2 className="eyebrow" id="results-title">02 · Results</h2>
+              <p className="status-line" aria-live="polite">
+                {agreement ?? (allReady ? "Both models are loaded and ready." : "Loading the models into your browser…")}
+              </p>
+            </div>
             {phase === "noface" && (
               <div className="panel message">
                 <p>
@@ -144,7 +172,6 @@ export default function App() {
             {phase === "error" && (
               <div className="panel message error">Something went wrong while analyzing this image. Try another photo.</div>
             )}
-            {agreement && <p className="agreement">{agreement}</p>}
             <div className="cards">
               {MODELS.map(({ id, name }) => (
                 <ResultCard
@@ -157,6 +184,7 @@ export default function App() {
                 />
               ))}
             </div>
+            <MetricsStrip />
           </section>
         </div>
 
@@ -164,9 +192,13 @@ export default function App() {
       </main>
 
       <footer className="site-footer">
-        <div className="wrap">
-          Built by {SITE.author} · <a href={SITE.githubUrl}>Source on GitHub</a> · Models run locally with
-          TensorFlow.js
+        <div className="wrap footer-row">
+          <span>
+            {SITE.author} · <a href={SITE.datasetUrl}>Kaggle autism image dataset</a>, 300-image test set
+          </span>
+          <span>
+            TensorFlow.js, runs entirely in your browser · <a href={SITE.githubUrl}>Source on GitHub</a>
+          </span>
         </div>
       </footer>
     </>
