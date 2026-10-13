@@ -4,9 +4,9 @@ import { IMAGE_SIZE } from "../config.js";
 let detectorPromise;
 
 export function loadFaceDetector() {
-  detectorPromise ??= FilesetResolver.forVisionTasks("/mediapipe/wasm").then((fileset) =>
+  detectorPromise ??= FilesetResolver.forVisionTasks(`${import.meta.env.BASE_URL}mediapipe/wasm`).then((fileset) =>
     FaceDetector.createFromOptions(fileset, {
-      baseOptions: { modelAssetPath: "/mediapipe/blaze_face_short_range.tflite" },
+      baseOptions: { modelAssetPath: `${import.meta.env.BASE_URL}mediapipe/blaze_face_short_range.tflite` },
       runningMode: "IMAGE",
       minDetectionConfidence: 0.5,
     }),

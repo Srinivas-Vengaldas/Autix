@@ -7,8 +7,8 @@ export const SITE = {
 };
 
 export const MODELS = [
-  { id: "xception", name: "Xception", url: "/models/xception/model.json" },
-  { id: "vgg19", name: "VGG19", url: "/models/vgg19/model.json" },
+  { id: "xception", name: "Xception", url: `${import.meta.env.BASE_URL}models/xception/model.json` },
+  { id: "vgg19", name: "VGG19", url: `${import.meta.env.BASE_URL}models/vgg19/model.json` },
 ];
 
 export const IMAGE_SIZE = 224; // both models expect 224 x 224 RGB, pixel values 0..255

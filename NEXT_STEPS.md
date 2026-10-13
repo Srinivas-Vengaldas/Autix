@@ -37,19 +37,16 @@ git push -u origin main
 
 The datasets, `node_modules` and build output are excluded by `.gitignore`. The first push uploads about 85 MB of model files, so give it a minute.
 
-## 6. Deploy on Azure Static Web Apps (free)
+## 6. Deploy on GitHub Pages (free)
 
-1. In the [Azure portal](https://portal.azure.com): **Create a resource → Static Web App**.
-2. Plan type **Free**. Deployment details: choose **Other** (the GitHub Action in this repo does the deploying). Create it.
-3. Open the new resource → **Manage deployment token** → copy the token.
-4. On GitHub: repo **Settings → Secrets and variables → Actions → New repository secret**. Name `AZURE_STATIC_WEB_APPS_API_TOKEN`, value: the token.
-5. On GitHub: **Actions → Deploy website → Run workflow**. After it goes green, open the URL shown on the Azure resource's **Overview** page.
+1. On GitHub, open the Autix repo → **Settings → Pages**. Under **Build and deployment → Source**, choose **GitHub Actions**.
+2. Push the latest changes (`git add . && git commit -m "Deploy to GitHub Pages" && git push`). The **Deploy website** workflow builds and publishes the site.
+3. After the run goes green (repo → **Actions**), the site is at https://srinivas-vengaldas.github.io/Autix/
 
 From then on, every push to `main` that changes `web/` redeploys the site.
 
 ## 7. Share it
 
-- Put the live link at the top of `README.md`.
 - Add it to your resume, LinkedIn Featured section and GitHub profile README.
 - Before sharing, open it once on your phone and in a private browser window.
 

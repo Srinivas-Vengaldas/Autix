@@ -7,7 +7,7 @@ export default function About() {
   const [metrics, setMetrics] = useState(null);
 
   useEffect(() => {
-    fetch("/models/metrics.json")
+    fetch(`${import.meta.env.BASE_URL}models/metrics.json`)
       .then((r) => (r.ok ? r.json() : null))
       .then(setMetrics)
       .catch(() => setMetrics(null));

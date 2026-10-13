@@ -2,7 +2,7 @@
 
 Compare two transfer-learning CNNs, **Xception** and **VGG19**, on a face photo, with class activation maps that show what each model looked at. Both models run entirely in the browser with TensorFlow.js, so photos never leave the visitor's device.
 
-**Live demo:** _add your Azure link here_
+**Live demo:** https://srinivas-vengaldas.github.io/Autix/
 
 > **Educational project, not a diagnostic tool.** Autism is diagnosed through behavioural assessment by qualified clinicians and cannot be identified from a photo. This project shows what CNNs learn from a public, web-collected dataset, and where that goes wrong.
 
@@ -42,7 +42,7 @@ The 2022 version of this project reported 86% accuracy for Xception. That run ha
 
 ```
 training/autix_train.ipynb   # Colab notebook: data, training, evaluation, export
-web/                         # React site (Vite), deployed to Azure Static Web Apps
+web/                         # React site (Vite), deployed to GitHub Pages
   src/lib/                   # model loading, face crop, heatmap
   public/models/             # exported TensorFlow.js models + metrics.json
 assets/figures/              # evaluation figures from the notebook

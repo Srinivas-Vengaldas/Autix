@@ -6,8 +6,17 @@ on:
     paths: ["web/**", ".github/workflows/deploy.yml"]
   workflow_dispatch:
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -20,6 +29,8 @@ jobs:
 
       - name: Build
         working-directory: web
+        env:
+          BASE_PATH: /${{ github.event.repository.name }}/
         run: |
           npm ci
           npm run build
@@ -27,13 +38,16 @@ jobs:
       - name: Check the trained models are included
         run: test -f web/dist/models/xception/model.json && test -f web/dist/models/vgg19/model.json
 
-      # Only pushes to main deploy, so no preview copies use up the Free plan's storage.
-      - name: Deploy to Azure Static Web Apps
-        uses: Azure/static-web-apps-deploy@v1
+      - uses: actions/upload-pages-artifact@v3
         with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
-          action: upload
-          app_location: web/dist
-          api_location: ""
-          output_location: ""
-          skip_app_build: true
+          path: web/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
